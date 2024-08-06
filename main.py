@@ -60,39 +60,36 @@ def generate_layers(mask, max_growth):
     Increase the white-yellow mask in scale range 1-20 and save the images
     """
     os.makedirs('output', exist_ok=True)
-    increments = max_growth / 20
+    increments = max_growth / 24
     for scale in np.arange(1+increments, max_growth+increments, increments):
         mask = increase_mask(mask, scale)
         cv2.imwrite(f'output/mask_{scale}.png', mask)
 
 
-def create_gif(img_bw, layers, fps=10, num_loops=10):
+def create_gif(img_bw, layers, fps=10):
     """
     Create a gif of the images on top of the original black and white image
     """
     gif_name = 'output/moving.gif'
 
-    with imageio.get_writer(gif_name, mode='I', fps=fps,) as writer:     
-        for _ in range(num_loops):
-            # Add images in ascending order of scales
-            for layer in layers:
-                mask_path = f'output/{layer}'
-                mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
-                # mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
+    with imageio.get_writer(gif_name, mode='I', fps=fps, loop=0) as writer:     
+        # Add images in ascending order of scales
+        for layer in layers:
+            mask_path = f'output/{layer}'
+            mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
 
-                # Overlay the mask on the original black and white image
-                overlay = cv2.addWeighted(img_bw, 1, mask, 1, 0)
-                writer.append_data(overlay)
+            # Overlay the mask on the original black and white image
+            overlay = cv2.addWeighted(img_bw, 1, mask, 1, 0)
+            writer.append_data(overlay)
 
-            # Add images in descending order of scales but skip first and last
-            for layer in reversed(layers[1:-1]):
-                mask_path = f'output/{layer}'
-                mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
-                # mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
-                
-                # Overlay the mask on the original black and white image
-                overlay = cv2.addWeighted(img_bw, 1, mask, 1, 0)
-                writer.append_data(overlay)
+        # Add images in descending order of scales but skip first and last
+        for layer in reversed(layers[1:-1]):
+            mask_path = f'output/{layer}'
+            mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+            
+            # Overlay the mask on the original black and white image
+            overlay = cv2.addWeighted(img_bw, 1, mask, 1, 0)
+            writer.append_data(overlay)
 
     # clear the output folder of everything except the gif
     for layer in layers:
@@ -126,7 +123,7 @@ def main():
     layers = sorted(layers, key=lambda x: float(x.split('_')[1][:-4]))
 
     # create the gif
-    create_gif(image, layers, fps=16, num_loops=1)
+    create_gif(image, layers, fps=12)
 
     print("Gif created successfully! (output/moving.gif)")
 
