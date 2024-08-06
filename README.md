@@ -6,7 +6,7 @@ Turn an image into a gif with a 'glowing' effect
 
 1. Clone this repo and cd to root directory
     ```bash
-    git clone ...
+    git clone https://github.com/marcolanfranchi/img-transformer.git
     cd img-transformer
     ```
 2. Install required packages
@@ -34,5 +34,5 @@ Turn an image into a gif with a 'glowing' effect
 
 **Output gif:**
 
-<!-- ![Output gif](path/to/your/gif.gif){: .gif loop=infinite} -->
+![Output gif](output/moving.gif)
 

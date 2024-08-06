@@ -4,11 +4,23 @@ import sys
 import cv2
 import os
 import imageio
+from pygifsicle import optimize
+
+
+def compress_image(img, scale_percent):
+    """
+    Compress image by a given scale percentage
+    """
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    dim = (width, height)
+    img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+    return img
 
 
 def read_image(img_name, col=None):
     """
-    Read the image of file type .JPG, .PNG, or .JPEG and convert to selected color space
+    Read image of file type .JPG, .PNG, or .JPEG, convert to selected color space, compress, then return image
     """
     img_path = 'images/' + img_name
     img = cv2.imread(img_path)
@@ -18,6 +30,9 @@ def read_image(img_name, col=None):
     
     if col == 'bw':
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # compress image by 75%
+    img = compress_image(img, 25)
 
     return img
 
@@ -70,7 +85,7 @@ def create_gif(img_bw, layers, fps=10, num_loops=10):
                 writer.append_data(overlay)
 
             # Add images in descending order of scales but skip first and last
-            for layer in reversed(layers):
+            for layer in reversed(layers[1:-1]):
                 mask_path = f'output/{layer}'
                 mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
                 # mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
@@ -104,14 +119,14 @@ def main():
     mask = get_mask(image)
 
     # generate the layers (mask scaled up)
-    generate_layers(mask, 5)
+    generate_layers(mask, 2.5)
 
     # get the layers and sort them by scale (ascending)
     layers = [layer for layer in os.listdir('output') if 'mask' in layer]
     layers = sorted(layers, key=lambda x: float(x.split('_')[1][:-4]))
 
     # create the gif
-    create_gif(image, layers, fps=10, num_loops=1)
+    create_gif(image, layers, fps=16, num_loops=1)
 
     print("Gif created successfully! (output/moving.gif)")
 
