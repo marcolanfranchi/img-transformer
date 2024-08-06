@@ -22,7 +22,7 @@ Turn an image into a gif with a 'glowing' effect
     python main.py IMG.png
     ```
     ... or if you want the result to be in black and white:
-        ```bash
+    ```bash
     python main.py IMG.png bw
     ```
 
